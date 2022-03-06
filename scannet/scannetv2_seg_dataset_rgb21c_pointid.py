@@ -14,6 +14,7 @@ import pickle
 from plyfile import PlyData, PlyElement
 
 def remove_unano(scene_data, scene_label, scene_data_id):
+    """remove unanotated points"""
     keep_idx = np.where((scene_label > 0) & (scene_label < 41)) # 0: unanotated
     scene_data_clean = scene_data[keep_idx]
     scene_label_clean = scene_label[keep_idx]
@@ -35,31 +36,37 @@ def gen_pickle(split = "val", root = "DataSet/Scannet_v2"):
     if split == 'test':
         root = root + "/scans_test"
     else:
-        root = root + "/scans"
-    file_list = "scannetv2_%s.txt"%(split)
-    with open(file_list) as fl:
-        scene_id = fl.read().splitlines()
-    
+        root = root + "\\scans"
+    # file_list = "scannetv2_%s.txt"%(split)
+    # with open(file_list) as fl:
+    #     scene_id = fl.read().splitlines()
+    scene_id = 'scene0000_00'
     scene_data = []
     scene_data_labels = []
     scene_data_id = []
     scene_data_num = []
     label_map = gen_label_map()
-    for i in range(len(scene_id)): #len(scene_id)
+    # for i in range(len(scene_id)): #len(scene_id)
+    for i in range(1): #len(scene_id)
         print('process...', i)
-        scene_namergb = os.path.join(root, scene_id[i], scene_id[i]+'_vh_clean_2.ply')
+        #scene_namergb = os.path.join(root, scene_id[i], scene_id[i]+'_vh_clean_2.ply')
+        scene_namergb = os.path.join(root, scene_id, scene_id+'_vh_clean_2.ply')
+        print("file name:", scene_namergb)
         scene_xyzlabelrgb = PlyData.read(scene_namergb)
         scene_vertex_rgb = scene_xyzlabelrgb['vertex']
         scene_data_tmp = np.stack((scene_vertex_rgb['x'], scene_vertex_rgb['y'],
                                    scene_vertex_rgb['z'], scene_vertex_rgb['red'],
                                    scene_vertex_rgb['green'], scene_vertex_rgb['blue']), axis = -1).astype(np.float32)
         scene_points_num = scene_data_tmp.shape[0]
+        # 加了索引
         scene_point_id = np.array([c for c in range(scene_points_num)])
         if split != 'test':
-            scene_name = os.path.join(root, scene_id[i], scene_id[i]+'_vh_clean_2.labels.ply')
+            # scene_name = os.path.join(root, scene_id[i], scene_id[i]+'_vh_clean_2.labels.ply')
+            scene_name = os.path.join(root, scene_id, scene_id+'_vh_clean_2.labels.ply')
             scene_xyzlabel = PlyData.read(scene_name)
             scene_vertex = scene_xyzlabel['vertex']
             scene_data_label_tmp = scene_vertex['label']
+            # 移除了未注释的点导致scene_points_num和scene_data数量不一致
             scene_data_tmp, scene_data_label_tmp, scene_point_id_tmp = remove_unano(scene_data_tmp, scene_data_label_tmp, scene_point_id)
         else:
             scene_data_label_tmp = np.zeros((scene_data_tmp.shape[0])).astype(np.int32)
@@ -69,20 +76,23 @@ def gen_pickle(split = "val", root = "DataSet/Scannet_v2"):
         scene_data_labels.append(scene_data_label_tmp)
         scene_data_id.append(scene_point_id_tmp)
         scene_data_num.append(scene_points_num)
-
-    pickle_out = open("scannet_%s_rgb21c_pointid.pickle"%(split),"wb")
-    pickle.dump(scene_data, pickle_out, protocol=0)
-    pickle.dump(scene_data_labels, pickle_out, protocol=0)
-    pickle.dump(scene_data_id, pickle_out, protocol=0)
-    pickle.dump(scene_data_num, pickle_out, protocol=0)
-    pickle_out.close()
+    print("scan_data:\n",scene_data[0].shape)#list里面包含array,array.shape->(n,6)
+    print("scene_data_labels:\n",scene_data_labels[0].shape)
+    print("scene_data_id:\n",scene_data_id)
+    print("scene_data_num:\n",scene_data_num)
+    # pickle_out = open("scannet_%s_rgb21c_pointid.pickle"%(split),"wb")
+    # pickle.dump(scene_data, pickle_out, protocol=0)
+    # pickle.dump(scene_data_labels, pickle_out, protocol=0)
+    # pickle.dump(scene_data_id, pickle_out, protocol=0)
+    # pickle.dump(scene_data_num, pickle_out, protocol=0)
+    # pickle_out.close()
 
 if __name__ =='__main__':
 
-    root = "/media/wenxuan/Large/DataSet/Scannet_v2" #modify this path to your Scannet v2 dataset Path
+    root = "E:\\Git\\pointconv\\scannet\\data" #modify this path to your Scannet v2 dataset Path
     gen_pickle(split = 'train', root = root)
-    gen_pickle(split = 'val', root = root)
-    gen_pickle(split = 'test', root = root)
+    # gen_pickle(split = 'val', root = root)
+    # gen_pickle(split = 'test', root = root)
 
     print('Done!!!')
 
