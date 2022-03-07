@@ -8,6 +8,7 @@ from plyfile import PlyData, PlyElement
 
 def from_ply(split = "val", file = "E:\\基坑点云\\No3_LAS&PCD\\3_3_column_0\\columns-test.ply"):
     scene_ply = PlyData.read(file)
+    print("reading...",file)
     scene_vertex = scene_ply['vertex']
     scene_data = np.stack((scene_vertex['x'], scene_vertex['y'],
                     scene_vertex['z'], scene_vertex['red'],
@@ -24,7 +25,7 @@ def from_ply(split = "val", file = "E:\\基坑点云\\No3_LAS&PCD\\3_3_column_0\
     # scene_data_test=[]
     # scene_data_test.append(scene_data)
     # print(scene_data_test,'\n\n',scene_label,'\n\n',scene_data_id, '\n\n', scene_points_num)
-
+    print("writing "+split+" file...")
     pickle_out = open("scannet_%s_rgb.pickle"%(split),"wb")
     pickle.dump(scene_data, pickle_out, protocol=1)
     pickle.dump(scene_label, pickle_out, protocol=1)
@@ -33,5 +34,7 @@ def from_ply(split = "val", file = "E:\\基坑点云\\No3_LAS&PCD\\3_3_column_0\
     pickle_out.close()
 
 if __name__ =='__main__':
-    root = "E:\\基坑点云\\No3_LAS&PCD\\3_3_column_0\\"
-    from_ply('val', file = root + 'columns-test.ply')
+    root = "E:\\基坑点云\\No3_LAS&PCD\\3_3_total\\"
+    from_ply('val', file = root + 'Validation.ply')
+    from_ply('test', file = root + 'Test.ply')
+    from_ply('train', file = root + 'Train.ply')
