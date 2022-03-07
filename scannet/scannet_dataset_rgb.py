@@ -23,12 +23,14 @@ class ScannetDataset():
             self.scene_points_id = pickle.load(fp)
             self.scene_points_num = pickle.load(fp)
         if split=='train':
+            #计算直方图，labelweights即比例
             labelweights = np.zeros(21)
             for seg in self.semantic_labels_list:
                 tmp,_ = np.histogram(seg,range(22))
                 labelweights += tmp
             labelweights = labelweights.astype(np.float32)
             labelweights = labelweights/np.sum(labelweights)
+            #占比最大的label比例开三次方
             self.labelweights = np.power(np.amax(labelweights[1:]) / labelweights, 1/3.0)
             print(self.labelweights)
         elif split=='val':
