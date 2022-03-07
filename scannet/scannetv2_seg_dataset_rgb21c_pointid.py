@@ -72,6 +72,7 @@ def gen_pickle(split = "val", root = "DataSet/Scannet_v2"):
             scene_data_label_tmp = np.zeros((scene_data_tmp.shape[0])).astype(np.int32)
             scene_point_id_tmp = scene_point_id
         scene_data_label_tmp = label_map[scene_data_label_tmp]
+        
         scene_data.append(scene_data_tmp)
         scene_data_labels.append(scene_data_label_tmp)
         scene_data_id.append(scene_point_id_tmp)
