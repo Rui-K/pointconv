@@ -4,7 +4,7 @@ Extract point clouds data from .ply files to genrate .pickle files for training 
 Author: Wenxuan Wu
 Date: July 2018
 """
-
+from __future__ import print_function
 import os
 import sys
 import numpy as np 
@@ -12,6 +12,7 @@ import util
 import h5py
 import pickle
 from plyfile import PlyData, PlyElement
+
 
 def remove_unano(scene_data, scene_label, scene_data_id):
     """remove unanotated points"""
@@ -36,7 +37,7 @@ def gen_pickle(split = "val", root = "DataSet/Scannet_v2"):
     if split == 'test':
         root = root + "/scans_test"
     else:
-        root = root + "\\scans"
+        root = root + "/scans"
     # file_list = "scannetv2_%s.txt"%(split)
     # with open(file_list) as fl:
     #     scene_id = fl.read().splitlines()
@@ -48,7 +49,7 @@ def gen_pickle(split = "val", root = "DataSet/Scannet_v2"):
     label_map = gen_label_map()
     # for i in range(len(scene_id)): #len(scene_id)
     for i in range(1): #len(scene_id)
-        print('process...', i)
+        print("process...")
         #scene_namergb = os.path.join(root, scene_id[i], scene_id[i]+'_vh_clean_2.ply')
         scene_namergb = os.path.join(root, scene_id, scene_id+'_vh_clean_2.ply')
         print("file name:", scene_namergb)
@@ -58,7 +59,7 @@ def gen_pickle(split = "val", root = "DataSet/Scannet_v2"):
                                    scene_vertex_rgb['z'], scene_vertex_rgb['red'],
                                    scene_vertex_rgb['green'], scene_vertex_rgb['blue']), axis = -1).astype(np.float32)
         scene_points_num = scene_data_tmp.shape[0]
-        # 加了索引
+
         scene_point_id = np.array([c for c in range(scene_points_num)])
         if split != 'test':
             # scene_name = os.path.join(root, scene_id[i], scene_id[i]+'_vh_clean_2.labels.ply')
@@ -66,7 +67,7 @@ def gen_pickle(split = "val", root = "DataSet/Scannet_v2"):
             scene_xyzlabel = PlyData.read(scene_name)
             scene_vertex = scene_xyzlabel['vertex']
             scene_data_label_tmp = scene_vertex['label']
-            # 移除了未注释的点导致scene_points_num和scene_data数量不一致
+
             scene_data_tmp, scene_data_label_tmp, scene_point_id_tmp = remove_unano(scene_data_tmp, scene_data_label_tmp, scene_point_id)
         else:
             scene_data_label_tmp = np.zeros((scene_data_tmp.shape[0])).astype(np.int32)
@@ -76,10 +77,9 @@ def gen_pickle(split = "val", root = "DataSet/Scannet_v2"):
         scene_data_labels.append(scene_data_label_tmp)
         scene_data_id.append(scene_point_id_tmp)
         scene_data_num.append(scene_points_num)
-    print("scan_data:\n",scene_data[0].shape)#list里面包含array,array.shape->(n,6)
-    print("scene_data_labels:\n",scene_data_labels[0].shape)
-    print("scene_data_id:\n",scene_data_id)
-    print("scene_data_num:\n",scene_data_num)
+    print(scene_data[0].shape, scene_data)
+    print(scene_data_labels[0].shape, scene_data_labels)
+    print(scene_data_id[0].shape, scene_data_id)
     # pickle_out = open("scannet_%s_rgb21c_pointid.pickle"%(split),"wb")
     # pickle.dump(scene_data, pickle_out, protocol=0)
     # pickle.dump(scene_data_labels, pickle_out, protocol=0)
@@ -89,7 +89,7 @@ def gen_pickle(split = "val", root = "DataSet/Scannet_v2"):
 
 if __name__ =='__main__':
 
-    root = "E:\\Git\\pointconv\\scannet\\data" #modify this path to your Scannet v2 dataset Path
+    root = "./data" #modify this path to your Scannet v2 dataset Path
     gen_pickle(split = 'train', root = root)
     # gen_pickle(split = 'val', root = root)
     # gen_pickle(split = 'test', root = root)
