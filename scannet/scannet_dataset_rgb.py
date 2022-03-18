@@ -9,7 +9,7 @@ import os
 import sys
 import numpy as np
 import pc_util
-
+NUM_CLASSES = 9
 class ScannetDataset():
     def __init__(self, root, block_points=8192, split='train', with_rgb = False):
         self.npoints = block_points
@@ -23,16 +23,16 @@ class ScannetDataset():
             self.scene_points_id = pickle.load(fp)
             self.scene_points_num = pickle.load(fp)
         if split=='train':
-            labelweights = np.zeros(21)
+            labelweights = np.zeros(NUM_CLASSES)
             for seg in self.semantic_labels_list:
-                tmp,_ = np.histogram(seg,range(22))
+                tmp,_ = np.histogram(seg,range(NUM_CLASSES + 1))
                 labelweights += tmp
             labelweights = labelweights.astype(np.float32)
             labelweights = labelweights/np.sum(labelweights)
             self.labelweights = np.power(np.amax(labelweights[1:]) / labelweights, 1/3.0)
             print(self.labelweights)
         elif split=='val':
-            self.labelweights = np.ones(21)
+            self.labelweights = np.ones(NUM_CLASSES)
 
     def __getitem__(self, index):
         if self.with_rgb:
@@ -85,15 +85,15 @@ class ScannetDatasetWholeScene():
             self.scene_points_id = pickle.load(fp)
             self.scene_points_num = pickle.load(fp)
         if split=='train':
-            labelweights = np.zeros(21)
+            labelweights = np.zeros(NUM_CLASSES)
             for seg in self.semantic_labels_list:
-                tmp,_ = np.histogram(seg,range(22))
+                tmp,_ = np.histogram(seg,range(NUM_CLASSES + 1))
                 labelweights += tmp
             labelweights = labelweights.astype(np.float32)
             labelweights = labelweights/np.sum(labelweights)
             self.labelweights = 1/np.log(1.2+labelweights)
         elif split=='val':
-            self.labelweights = np.ones(21)
+            self.labelweights = np.ones(NUM_CLASSES)
 
     def __getitem__(self, index):
         if self.with_rgb:
@@ -143,14 +143,14 @@ if __name__=='__main__':
     import pdb
     pdb.set_trace()
     d = ScannetDatasetWholeScene(root = './', split='val', block_points=8192)
-    labelweights_vox = np.zeros(21)
+    labelweights_vox = np.zeros(NUM_CLASSES)
     for ii in range(len(d)):
         print(ii)
         #ps,seg,smpw = d[ii]
         ps,seg,smpw = d[ii]
         for b in range(ps.shape[0]):
             _, uvlabel, _ = pc_util.point_cloud_label_to_surface_voxel_label_fast(ps[b,smpw[b,:]>0,:], seg[b,smpw[b,:]>0], res=0.02)
-            tmp,_ = np.histogram(uvlabel,range(22))
+            tmp,_ = np.histogram(uvlabel,range(NUM_CLASSES + 1))
             labelweights_vox += tmp
     print(labelweights_vox[1:].astype(np.float32)/np.sum(labelweights_vox[1:].astype(np.float32)))
     exit()

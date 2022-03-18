@@ -71,7 +71,7 @@ BN_DECAY_CLIP = 0.99
 
 HOSTNAME = socket.gethostname()
 
-NUM_CLASSES = 21
+NUM_CLASSES = 9
 
 # Shapenet official train/test split
 # DATA_PATH = os.path.join(BASE_DIR, 'scannet')

@@ -121,7 +121,8 @@ def grouping(feature, K, src_xyz, q_xyz, use_xyz = True):
     npoint = q_xyz.get_shape()[1]
 
     point_indices = tf.py_func(knn_kdtree, [K, src_xyz, q_xyz], tf.int32)
-    batch_indices = tf.tile(tf.reshape(tf.range(batch_size), (-1, 1, 1, 1)), (1, npoint, K, 1))
+    # batch_indices = tf.tile(tf.reshape(tf.range(batch_size), (-1, 1, 1, 1)), (1, npoint, K, 1))
+    batch_indices = tf.tile(tf.reshape(tf.range(batch_size), (-1, 1, 1, 1)), (1, np.shape(q_xyz)[1], K, 1))
     idx = tf.concat([batch_indices, tf.expand_dims(point_indices, axis = 3)], axis = 3)
     idx.set_shape([batch_size, npoint, K, 2])
 
