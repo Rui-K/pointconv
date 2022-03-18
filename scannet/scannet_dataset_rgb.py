@@ -16,7 +16,7 @@ class ScannetDataset():
         self.root = root
         self.with_rgb = with_rgb
         self.split = split
-        self.data_filename = os.path.join(self.root, 'scannet_%s_rgb21c_pointid.pickle'%(split))
+        self.data_filename = os.path.join(self.root, 'scannet_%s_rgb.pickle'%(split))
         with open(self.data_filename,'rb') as fp:
             self.scene_points_list = pickle.load(fp)
             self.semantic_labels_list = pickle.load(fp)
@@ -78,7 +78,7 @@ class ScannetDatasetWholeScene():
         self.root = root
         self.with_rgb = with_rgb
         self.split = split
-        self.data_filename = os.path.join(self.root, 'scannet_%s_rgb21c_pointid.pickle'%(split))
+        self.data_filename = os.path.join(self.root, 'scannet_%s_rgb.pickle'%(split))
         with open(self.data_filename,'rb') as fp:
             self.scene_points_list = pickle.load(fp)
             self.semantic_labels_list = pickle.load(fp)

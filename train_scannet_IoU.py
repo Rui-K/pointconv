@@ -74,7 +74,8 @@ HOSTNAME = socket.gethostname()
 NUM_CLASSES = 21
 
 # Shapenet official train/test split
-DATA_PATH = os.path.join(BASE_DIR, 'scannet')
+# DATA_PATH = os.path.join(BASE_DIR, 'scannet')
+DATA_PATH = '/home/kangrui/Data/FP_point/3_3_pickle'
 print("start loading training data ...")
 TRAIN_DATASET = scannet_dataset_rgb.ScannetDataset(root=DATA_PATH, block_points=NUM_POINT, split='train')
 print("start loading validation data ...")
