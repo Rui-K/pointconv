@@ -30,7 +30,7 @@ class ScannetDataset():
                 labelweights += tmp
             labelweights = labelweights.astype(np.float32)
             labelweights = labelweights/np.sum(labelweights)
-            #占比最大的label比例开三次方
+            #占比最大的label比例除以各label比例开三次方,why?
             self.labelweights = np.power(np.amax(labelweights[1:]) / labelweights, 1/3.0)
             print(self.labelweights)
         elif split=='val':
@@ -42,13 +42,16 @@ class ScannetDataset():
         else:
             point_set = self.scene_points_list[index][:, 0:3]
         semantic_seg = self.semantic_labels_list[index].astype(np.int32)
+        # max and min x
         coordmax = np.max(point_set[:, 0:3],axis=0)
         coordmin = np.min(point_set[:, 0:3],axis=0)
         isvalid = False
         for i in range(10):
-            curcenter = point_set[np.random.choice(len(semantic_seg),1)[0],0:3]
+            curcenter = point_set[np.random.choice(len(semantic_seg),1)[0],0:3]#随机选一个点
+            #might be stride, 1.5
             curmin = curcenter-[0.75,0.75,1.5]
             curmax = curcenter+[0.75,0.75,1.5]
+            # 赋予最大与最小x坐标对应点的z坐标
             curmin[2] = coordmin[2]
             curmax[2] = coordmax[2]
             curchoice = np.sum((point_set[:, 0:3]>=(curmin-0.2))*(point_set[:, 0:3]<=(curmax+0.2)),axis=1)==3
