@@ -38,6 +38,8 @@ class ScannetDataset():
         if self.with_rgb:
             point_set = self.scene_points_list[index]
         else:
+            # print("index: ",index)
+            # print("scene_points_list: ",self.scene_points_list)
             point_set = self.scene_points_list[index][:, 0:3]
         semantic_seg = self.semantic_labels_list[index].astype(np.int32)
         coordmax = np.max(point_set[:, 0:3],axis=0)

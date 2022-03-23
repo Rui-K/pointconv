@@ -24,12 +24,12 @@ import scannet_dataset_rgb
 import time
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--gpu', type=int, default=0, help='GPU to use [default: GPU 0]')
+parser.add_argument('--gpu', type=int, default=1, help='GPU to use [default: GPU 0]')
 parser.add_argument('--model', default='pointconv_weight_density_n16', help='Model name [default: pointconv_weight_density_n16]')
 parser.add_argument('--log_dir', default='log', help='Log dir [default: log]')
 parser.add_argument('--num_point', type=int, default=8192, help='Point Number [default: 8192]')
 parser.add_argument('--max_epoch', type=int, default=501, help='Epoch to run [default: 501]')
-parser.add_argument('--batch_size', type=int, default=8, help='Batch Size during training [default: 32]')
+parser.add_argument('--batch_size', type=int, default=8, help='Batch Size during training [default: 8]')
 parser.add_argument('--learning_rate', type=float, default=0.001, help='Initial learning rate [default: 0.001]')
 parser.add_argument('--momentum', type=float, default=0.9, help='Initial learning rate [default: 0.9]')
 parser.add_argument('--optimizer', default='adam', help='adam or momentum [default: adam]')
@@ -75,7 +75,7 @@ NUM_CLASSES = 9
 
 # Shapenet official train/test split
 # DATA_PATH = os.path.join(BASE_DIR, 'scannet')
-DATA_PATH = '/home/kangrui/Data/FP_point/3_3_pickle'
+DATA_PATH = '/home/kangrui/Data/FP_point/3_3_pickle/block_scene'
 print("start loading training data ...")
 TRAIN_DATASET = scannet_dataset_rgb.ScannetDataset(root=DATA_PATH, block_points=NUM_POINT, split='train')
 print("start loading validation data ...")
@@ -233,7 +233,7 @@ def train_one_epoch(sess, ops, train_writer):
     train_idxs = np.arange(0, len(TRAIN_DATASET))
     np.random.shuffle(train_idxs)
     num_batches = int(len(TRAIN_DATASET)/BATCH_SIZE)
-    
+    # print("len(TRAIN_DATASET): ", len(TRAIN_DATASET))
     log_string(str(datetime.now()))
 
     total_correct = 0
@@ -293,7 +293,7 @@ def eval_one_epoch(sess, ops, test_writer):
     log_string(str(datetime.now()))
     log_string('---- EPOCH %03d EVALUATION ----'%(EPOCH_CNT))
 
-    labelweights = np.zeros(21)
+    labelweights = np.zeros(NUM_CLASSES)
     for batch_idx in range(num_batches):
         start_idx = batch_idx * BATCH_SIZE
         end_idx = (batch_idx+1) * BATCH_SIZE
@@ -315,7 +315,7 @@ def eval_one_epoch(sess, ops, test_writer):
         total_correct += correct
         total_seen += np.sum((batch_label>0) & (batch_smpw>0))
         loss_sum += loss_val
-        tmp,_ = np.histogram(batch_label,range(22))
+        tmp,_ = np.histogram(batch_label,range(NUM_CLASSES + 1))
         labelweights += tmp
         for l in range(NUM_CLASSES):
             total_seen_class[l] += np.sum((batch_label==l) & (batch_smpw>0))
@@ -351,7 +351,7 @@ def eval_whole_scene_one_epoch(sess, ops, test_writer):
     log_string(str(datetime.now()))
     log_string('---- EPOCH %03d EVALUATION WHOLE SCENE----'%(EPOCH_CNT_WHOLE))
 
-    labelweights = np.zeros(21)
+    labelweights = np.zeros(NUM_CLASSES)
     is_continue_batch = False
     
     extra_batch_data = np.zeros((0,NUM_POINT,3))
@@ -399,7 +399,7 @@ def eval_whole_scene_one_epoch(sess, ops, test_writer):
         total_correct += correct
         total_seen += np.sum((batch_label>0) & (batch_smpw>0))
         loss_sum += loss_val
-        tmp,_ = np.histogram(batch_label,range(22))
+        tmp,_ = np.histogram(batch_label,range(NUM_CLASSES + 1))
         labelweights += tmp
         for l in range(NUM_CLASSES):
             total_seen_class[l] += np.sum((batch_label==l) & (batch_smpw>0))
