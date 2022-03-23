@@ -22,6 +22,9 @@ def from_ply(split = "val", root = "E:\\基坑点云\\No3_LAS&PCD\\3_3_column_0\
                         scene_vertex['green'], scene_vertex['blue']), axis = -1).astype(np.float32)
         
         scene_points_num = scene_data_tmp.shape[0]
+        if (scene_points_num < 10000):
+            print("data %s set too small, skip!", i)
+            continue
         scene_data_id_tmp = np.array([c for c in range(scene_points_num)])
 
         if split == 'test':
