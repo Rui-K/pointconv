@@ -30,15 +30,15 @@ import pc_util
 from visualize_labels_on_mesh import visualize
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--gpu', type=int, default=0, help='GPU to use [default: GPU 0]')
-parser.add_argument('--model', default='model', help='Model name [default: model]')
-parser.add_argument('--batch_size', type=int, default=8, help='Batch Size during training [default: 8]')
+parser.add_argument('--gpu', type=int, default=1, help='GPU to use [default: GPU 1]')
+parser.add_argument('--model', default='pointconv_weight_density_n16', help='Model name [default: pointconv_weight_density_n16]')
+parser.add_argument('--batch_size', type=int, default=4, help='Batch Size during training [default: 4]')
 parser.add_argument('--num_point', type=int, default=8192, help='Point Number [256/512/1024/2048] [default: 8192]')
-parser.add_argument('--model_path', default='log/model.ckpt', help='model checkpoint file path [default: log/model.ckpt]')
-parser.add_argument('--ply_path', default='scannet', help='ply path from original Scannet')
+parser.add_argument('--model_path', default='/home/kangrui/pointconv/log2022_03_23_22_43_04/best_model_epoch_576.ckpt', help='model checkpoint file path [default: log/model.ckpt]')
+parser.add_argument('--ply_path', default='/home/kangrui/Data/FP_point/3_3_validation', help='ply path from original Scannet')
 parser.add_argument('--dump_dir', default='dump', help='dump folder path [dump]')
 parser.add_argument('--num_votes', type=int, default=5, help='Aggregate classification scores from multiple rotations [default: 5]')
-parser.add_argument('--with_rgb',help='With rgb or not', action='store_true')
+parser.add_argument('--with_rgb',default=False, help='With rgb or not', action='store_true')
 FLAGS = parser.parse_args()
 
 BATCH_SIZE = FLAGS.batch_size
@@ -55,12 +55,12 @@ LOG_FOUT.write(str(FLAGS)+'\n')
 
 BANDWIDTH = 0.05
 
-NUM_CLASSES = 21
+NUM_CLASSES = 9
 HOSTNAME = socket.gethostname()
 
-DATA_PATH = os.path.join(BASE_DIR, 'scannet')
+DATA_PATH = "/home/kangrui/Data/FP_point/3_3_pickle/block_scene"
 print("start loading whole scene data ...")
-TEST_DATASET_WHOLE_SCENE = scannet_dataset_sw_rgb.ScannetDatasetWholeScene_evaluation(root=DATA_PATH, split='val', with_rgb = WITH_RGB)
+TEST_DATASET_WHOLE_SCENE = scannet_dataset_sw_rgb.ScannetDatasetWholeScene_evaluation(root=DATA_PATH, split='val', num_class = NUM_CLASSES, with_rgb = WITH_RGB)
 
 def log_string(out_str):
     LOG_FOUT.write(out_str+'\n')
@@ -109,16 +109,17 @@ def add_vote(vote_label_pool, point_idx, pred_label):
             vote_label_pool[int(point_idx[b, n]), int(pred_label[b, n])] += 1
     return vote_label_pool
 
-test_class = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 24, 28, 33, 34, 36, 39])
+test_class = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8])
 
 def eval_one_epoch(sess, ops, num_votes=1, topk=1):
     is_training = False
-    file_list = "./scannet/scannetv2_val.txt"
-    with open(file_list) as fl:
-        scene_id = fl.read().splitlines()
+    # file_list = "./scannet/scannetv2_val.txt"
+    # with open(file_list) as fl:
+    #     scene_id = fl.read().splitlines()
+    scene_id = os.listdir(PLY_PATH)
     
     num_batches = len(TEST_DATASET_WHOLE_SCENE)
-
+    # total_* == [0,0,...,0] shape = 9
     total_seen_class = [0 for _ in range(NUM_CLASSES)]
     total_correct_class = [0 for _ in range(NUM_CLASSES)]
     total_iou_deno_class = [0 for _ in range(NUM_CLASSES)]
@@ -130,7 +131,7 @@ def eval_one_epoch(sess, ops, num_votes=1, topk=1):
         print("visualize %d %s ..."%(batch_idx, scene_id[batch_idx]))
         whole_scene_points_index = TEST_DATASET_WHOLE_SCENE.scene_points_id[batch_idx]
         whole_scene_points_num = TEST_DATASET_WHOLE_SCENE.scene_points_num[batch_idx]
-        whole_scene_label = TEST_DATASET_WHOLE_SCENE.semantic_labels_list[batch_idx]
+        whole_scene_label = TEST_DATASET_WHOLE_SCENE.semantic_labels_list[batch_idx] #whole_scene_label==ground truth label
         vote_label_pool = np.zeros((whole_scene_label.shape[0], NUM_CLASSES))
         for vote_idx in range(num_votes):
             scene_data, scene_label, scene_smpw, scene_point_index = TEST_DATASET_WHOLE_SCENE[batch_idx]
@@ -180,7 +181,7 @@ def eval_one_epoch(sess, ops, num_votes=1, topk=1):
             pl_save.close()
         
         pred_file = filename
-        mesh_file = os.path.join(PLY_PATH, scene_id[batch_idx], scene_id[batch_idx]+ '_vh_clean_2.ply')
+        mesh_file = os.path.join(PLY_PATH, scene_id[batch_idx])
         output_file = os.path.join(DUMP_DIR, scene_id[batch_idx] + '.ply')
         visualize(pred_file, mesh_file, output_file)
         

@@ -3,7 +3,7 @@ Modiyied to support point-wise evaluation in ScanNet v2.
 Author: Wenxuan Wu
 Date: July 2018
 """
-
+from __future__ import print_function
 
 import pickle
 import os
@@ -18,7 +18,7 @@ class ScannetDatasetWholeScene_evaluation():
         self.with_rgb = with_rgb
         self.block_points = block_points
         self.point_num = []
-        self.data_filename = os.path.join(self.root, 'scannet_%s_rgb21c_pointid.pickle'%(split))
+        self.data_filename = os.path.join(self.root, 'scannet_%s_rgb.pickle'%(split))
         with open(self.data_filename,'rb') as fp:
             self.scene_points_list = pickle.load(fp)
             self.semantic_labels_list = pickle.load(fp)
@@ -151,14 +151,23 @@ class ScannetDatasetWholeScene_evaluation():
         return len(self.scene_points_list)
 
 if __name__=='__main__':
-    import pdb
-    pdb.set_trace()
+    NUM_CLASSES=9
+    
+    # import pdb
+    # pdb.set_trace()
     #d = ScannetDataset(root = '../data/scannet/scannet_v2', split='test', npoints=8192)
-    d = ScannetDatasetWholeScene_evaluation(root = './data_v2')
-    labelweights_vox = np.zeros(21)
-    for ii in range(len(d)):
-        print(ii)
-        ps,seg,smpw, idxs = d[ii]
-    print(labelweights_vox[1:].astype(np.float32)/np.sum(labelweights_vox[1:].astype(np.float32)))
-    exit()
+    d = ScannetDatasetWholeScene_evaluation(root = '/home/kangrui/Data/FP_point/3_3_pickle/block_scene',split='test',num_class=9,with_rgb=False)
+    num_batches = len(d)
+    # labelweights_vox = np.zeros(9)
+    total_seen_class = [0 for _ in range(NUM_CLASSES)]
+    for batch_idx in range(num_batches):
+        print("batch_idx: ",batch_idx)
+        whole_scene_label = d.semantic_labels_list[batch_idx]
+        print("whole_scene_label: ",whole_scene_label)
+        for l in range(NUM_CLASSES):
+            total_seen_class[l] += np.sum((whole_scene_label==l))
+        # print(total_seen_class)
+
+    # print(labelweights_vox[1:].astype(np.float32)/np.sum(labelweights_vox[1:].astype(np.float32)))
+    # exit()
 
