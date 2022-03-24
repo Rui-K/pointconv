@@ -183,7 +183,7 @@ def train():
             end_time = time.time()
             log_string('one epoch time: %.4f'%(end_time - start_time))
             eval_one_epoch(sess, ops, test_writer)
-            if epoch%5==0:
+            if epoch%3==0:
                 acc = eval_whole_scene_one_epoch(sess, ops, whole_test_writer)
             if acc > best_acc:
                 best_acc = acc
