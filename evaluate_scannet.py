@@ -185,11 +185,11 @@ def eval_one_epoch(sess, ops, num_votes=1, topk=1):
         output_file = os.path.join(DUMP_DIR, scene_id[batch_idx] + '.ply')
         visualize(pred_file, mesh_file, output_file)
         
-    IoU = np.array(total_correct_class[1:])/(np.array(total_iou_deno_class[1:],dtype=np.float)+1e-6)
+    IoU = np.array(total_correct_class[0:])/(np.array(total_iou_deno_class[0:],dtype=np.float)+1e-6)
     log_string('eval point avg class IoU: %f' % (np.mean(IoU)))
     IoU_Class = 'Each Class IoU:::\n'
     for i in range(IoU.shape[0]):
-        IoU_Class += 'Class %d : %.4f\n'%(i+1, IoU[i])
+        IoU_Class += 'Class %d : %.4f\n'%(i, IoU[i])
     log_string(IoU_Class)
 
     print("Done!")
