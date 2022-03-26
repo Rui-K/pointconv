@@ -328,7 +328,7 @@ def eval_one_epoch(sess, ops, test_writer):
     log_string('eval point accuracy: %f'% (total_correct / float(total_seen)))
     log_string('eval point avg class acc: %f' % (np.mean(np.array(total_correct_class[1:])/(np.array(total_seen_class[1:],dtype=np.float)+1e-6))))
     iou_per_class_str = '------- IoU --------\n'
-    for l in range(1,NUM_CLASSES):
+    for l in range(0,NUM_CLASSES):
         iou_per_class_str += 'class %d, acc: %f \n' % (l,total_correct_class[l]/float(total_iou_deno_class[l]))
     log_string(iou_per_class_str)
     EPOCH_CNT += 1
@@ -414,7 +414,7 @@ def eval_whole_scene_one_epoch(sess, ops, test_writer):
     labelweights = labelweights[1:].astype(np.float32)/np.sum(labelweights[1:].astype(np.float32))
 
     iou_per_class_str = '------- IoU --------\n'
-    for l in range(1,NUM_CLASSES):
+    for l in range(0,NUM_CLASSES):
         iou_per_class_str += 'class %d, acc: %f \n' % (l,total_correct_class[l]/float(total_iou_deno_class[l]))
     log_string(iou_per_class_str)
 
