@@ -23,7 +23,8 @@ def from_ply(split = "val", root = "E:\\基坑点云\\No3_LAS&PCD\\3_3_column_0\
         
         scene_points_num = scene_data_tmp.shape[0]
         if (scene_points_num < 10000):
-            print("data %s set too small, skip!", i)
+            print("data %s set too small, skip!"%files[i],split)
+            print("scene_points_num: ",scene_points_num)
             continue
         scene_data_id_tmp = np.array([c for c in range(scene_points_num)])
 
@@ -40,17 +41,17 @@ def from_ply(split = "val", root = "E:\\基坑点云\\No3_LAS&PCD\\3_3_column_0\
     # scene_data_test=[]
     # scene_data_test.append(scene_data)
 
-    if split == 'test':
-        print(scene_data[0:3],'\n\n',scene_data_labels[0:3],'\n\n',scene_data_id[0:3], '\n\n', scene_data_num[0:3])
+    # if split == 'test':
+    #     print(scene_data[0:3],'\n\n',scene_data_labels[0:3],'\n\n',scene_data_id[0:3], '\n\n', scene_data_num[0:3])
 
     print("writing "+split+" file...")
     # pickle_out = open("scannet_%s_rgb.pickle"%(split),"wb")
-    pickle_out = open("scannet_%s_rgb.pickle"%(split),"wb")
-    pickle.dump(scene_data, pickle_out, protocol=1)
-    pickle.dump(scene_data_labels, pickle_out, protocol=1)
-    pickle.dump(scene_data_id, pickle_out, protocol=1)
-    pickle.dump(scene_data_num, pickle_out, protocol=1)
-    pickle_out.close()
+    # pickle_out = open("scannet_%s_rgb.pickle"%(split),"wb")
+    # pickle.dump(scene_data, pickle_out, protocol=1)
+    # pickle.dump(scene_data_labels, pickle_out, protocol=1)
+    # pickle.dump(scene_data_id, pickle_out, protocol=1)
+    # pickle.dump(scene_data_num, pickle_out, protocol=1)
+    # pickle_out.close()
 
 if __name__ =='__main__':
     root = "E:\\基坑点云\\No3_LAS&PCD\\3_3_total\\"
