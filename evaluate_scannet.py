@@ -165,7 +165,7 @@ def eval_one_epoch(sess, ops, num_votes=1, topk=1):
         for l in range(NUM_CLASSES):
             total_seen_class[l] += np.sum((whole_scene_label==l))
             total_correct_class[l] += np.sum((pred_label==l) & (whole_scene_label==l))
-            total_iou_deno_class[l] += np.sum(((pred_label==l) | (whole_scene_label==l)) & (whole_scene_label > 0))
+            total_iou_deno_class[l] += np.sum(((pred_label==l) | (whole_scene_label==l)) & (whole_scene_label >= 0))
 
 
         print(total_correct_class)
