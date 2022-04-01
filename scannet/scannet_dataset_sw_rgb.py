@@ -156,7 +156,7 @@ if __name__=='__main__':
     # import pdb
     # pdb.set_trace()
     #d = ScannetDataset(root = '../data/scannet/scannet_v2', split='test', npoints=8192)
-    d = ScannetDatasetWholeScene_evaluation(root = '/home/kangrui/Data/FP_point/3_3_pickle/block_scene',split='test',num_class=9,with_rgb=False)
+    d = ScannetDatasetWholeScene_evaluation(root = '/home/kangrui/Data/FP_point/3_3_pickle/block_scene',split='val',num_class=9,with_rgb=False)
     num_batches = len(d)
     # labelweights_vox = np.zeros(9)
     total_seen_class = [0 for _ in range(NUM_CLASSES)]
@@ -166,7 +166,7 @@ if __name__=='__main__':
         print("whole_scene_label: ",whole_scene_label)
         for l in range(NUM_CLASSES):
             total_seen_class[l] += np.sum((whole_scene_label==l))
-        # print(total_seen_class)
+    print("total_seen_class: ",total_seen_class)
 
     # print(labelweights_vox[1:].astype(np.float32)/np.sum(labelweights_vox[1:].astype(np.float32)))
     # exit()
