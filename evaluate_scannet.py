@@ -158,14 +158,15 @@ def eval_one_epoch(sess, ops, num_votes=1, topk=1):
                         ops['labels_pl']: batch_label,
                         ops['is_training_pl']: is_training}
                 pred_val = sess.run(ops['pred'], feed_dict=feed_dict)#BxNxNUM_CLASSES
-                batch_pred_label = np.argmax(pred_val[:, :, 1:], 2) + 1#BxN
+                batch_pred_label = np.argmax(pred_val[:, :, 1:], 2) + 1 #BxN why + 1??
+    
                 vote_label_pool = add_vote(vote_label_pool, batch_point_index[0:real_batch_size,...], batch_pred_label[0:real_batch_size,...])
 
         pred_label = np.argmax(vote_label_pool, 1)
-        for l in range(NUM_CLASSES):
+        for l in range(NUM_CLASSES):# final loop i=8
             total_seen_class[l] += np.sum((whole_scene_label==l))
             total_correct_class[l] += np.sum((pred_label==l) & (whole_scene_label==l))
-            total_iou_deno_class[l] += np.sum(((pred_label==l) | (whole_scene_label==l)) & (whole_scene_label >= 0))
+            total_iou_deno_class[l] += np.sum(((pred_label==l) | (whole_scene_label==l)) & (whole_scene_label > 0))
 
 
         print(total_correct_class)
@@ -185,11 +186,11 @@ def eval_one_epoch(sess, ops, num_votes=1, topk=1):
         output_file = os.path.join(DUMP_DIR, scene_id[batch_idx] + '.ply')
         visualize(pred_file, mesh_file, output_file)
         
-    IoU = np.array(total_correct_class[0:])/(np.array(total_iou_deno_class[0:],dtype=np.float)+1e-6)
+    IoU = np.array(total_correct_class[1:])/(np.array(total_iou_deno_class[1:],dtype=np.float)+1e-6)
     log_string('eval point avg class IoU: %f' % (np.mean(IoU)))
     IoU_Class = 'Each Class IoU:::\n'
     for i in range(IoU.shape[0]):
-        IoU_Class += 'Class %d : %.4f\n'%(i, IoU[i])
+        IoU_Class += 'Class %d : %.4f\n'%(i+1, IoU[i])
     log_string(IoU_Class)
 
     print("Done!")
